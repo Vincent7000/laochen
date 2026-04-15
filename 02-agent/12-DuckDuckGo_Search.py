@@ -15,13 +15,16 @@
 # 
 
 # %%
+import os
+os.environ['HTTP_PROXY'] = 'http://127.0.0.1:7890'
+os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:7890'
 from langchain_community.tools import DuckDuckGoSearchRun
 
 # %%
 search = DuckDuckGoSearchRun()
 
 # %%
-search.run("蔡徐坤")
+print(f"{search.run('蔡徐坤')}\n")
 
 # %% [markdown]
 # 要获取更多附加信息（例如链接、来源），请使用 DuckDuckGoSearchResults()
@@ -33,7 +36,7 @@ from langchain_community.tools import DuckDuckGoSearchResults
 search = DuckDuckGoSearchResults()
 
 # %%
-search.run("刘亦菲")
+print(f"{search.run('刘亦菲')}\n")
 
 # %% [markdown]
 # 您也可以只搜索新闻文章。使用关键字 backend="news"
@@ -42,7 +45,7 @@ search.run("刘亦菲")
 search = DuckDuckGoSearchResults(backend="news")
 
 # %%
-search.run("刘亦菲")
+print(f"{search.run('刘亦菲')}\n")
 
 # %% [markdown]
 # 您也可以直接将自定义 DuckDuckGoSearchAPIWrapper 传递给 DuckDuckGoSearchResults 。因此，您可以更好地控制搜索结果。
@@ -54,7 +57,7 @@ wrapper = DuckDuckGoSearchAPIWrapper(region="de-de", max_results=2,source="news"
 
 # %%
 search = DuckDuckGoSearchResults(api_wrapper=wrapper, )
-search.run("刘亦菲")
+print(f"{search.run('刘亦菲')}\n")
 
 # %% [markdown]
 # https://pypi.org/project/duckduckgo-search/

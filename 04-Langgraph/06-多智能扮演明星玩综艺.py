@@ -2,13 +2,20 @@
 # ![image.png](attachment:d0f8da76-659e-479b-bb48-4214ce142b7c.png)
 
 # %%
-from langchain_openai import ChatOpenAI
 
-llm = ChatOpenAI(
-    openai_api_key = "empty",
-    openai_api_base="http://127.0.0.1:1234/v1",
-    temperature=0.3
-)
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+from utils import llm
+
+
+# from langchain_openai import ChatOpenAI
+
+# llm = ChatOpenAI(
+#     openai_api_key = "empty",
+#     openai_api_base="http://127.0.0.1:1234/v1",
+#     temperature=0.3
+# )
 
 # %%
 #定义嘉宾智能体的提示词头部
@@ -29,17 +36,17 @@ player_prompt_header = """
 roleList = ["成龙","刘亦菲","沈腾","董成鹏"]
 
 # %%
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 strParser = StrOutputParser()
 roleDesPrompt = PromptTemplate.from_template("""
 用户输入：{input}
 请根据用户输入的明星，生成明星的详细介绍。返回必须按照下面的JSON格式返回,只返回json内容，不要返回斜杠注释的说明。
 {{
-    name:str, //明星的名称
-    description: str, //明星的基本介绍
-    nature: str, //明星的性格
-    experience: str, //明星的经历
+    "name":str, //明星的名称
+    "description": str, //明星的基本介绍
+    "nature": str, //明星的性格
+    "experience": str //明星的经历
 }}
 """)
 

@@ -91,17 +91,20 @@
 
 # %%
 from langchain_openai import ChatOpenAI
+import sys
 import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+from utils import llm
 
 # OPENAI_API_KEY= os.getenv('OPEN_API_KEY')
 # llm = ChatOpenAI(openai_api_key=OPENAI_API_KEY)
-openai_api_key = "EMPTY"
-openai_api_base = "http://127.0.0.1:1234/v1"
-llm = ChatOpenAI(
-    openai_api_key=openai_api_key,
-    openai_api_base=openai_api_base,
-    temperature=0.3,
-)
+# openai_api_key = "EMPTY"
+# openai_api_base = "http://127.0.0.1:1234/v1"
+# llm = ChatOpenAI(
+#     openai_api_key=openai_api_key,
+#     openai_api_base=openai_api_base,
+#     temperature=0.3,
+# )
 
 
 
@@ -114,7 +117,7 @@ search = SerpAPIWrapper()
 search.run("刘亦菲最近有什么活动？")
 
 # %%
-from langchain.agents import Tool
+from langchain_core.tools import Tool
 
 # You can create the tool to pass to an agent
 searchTool = Tool(

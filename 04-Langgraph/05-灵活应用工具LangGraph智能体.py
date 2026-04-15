@@ -2,13 +2,20 @@
 # ![image.png](attachment:bd48b628-20ac-4259-8c62-f4788a408a4f.png)
 
 # %%
-from langchain_openai import ChatOpenAI
 
-llm = ChatOpenAI(
-    openai_api_key = "empty",
-    openai_api_base="http://127.0.0.1:1234/v1",
-    temperature=0.3
-)
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+from utils import llm, searxng_search
+
+
+# from langchain_openai import ChatOpenAI
+
+# llm = ChatOpenAI(
+#     openai_api_key = "empty",
+#     openai_api_base="http://127.0.0.1:1234/v1",
+#     temperature=0.3
+# )
 
 # %%
 promptTemplate = """尽可能帮助用户回答任何的问题。
@@ -51,41 +58,41 @@ prompt = ChatPromptTemplate.from_messages([
 
 # %%
 #导入langchain
-from langchain.agents import tool
+from langchain_core.tools import tool
 import requests
 
-@tool
-def searxng_search(query):
-    """输入搜索内容，使用SearxNG进行搜索"""
-    Searxng_url = "http://127.0.0.1:6688"
-    # 配置搜索参数
-    #q=刘亦菲&category_general=1&language=auto&time_range=&safesearch=0&theme=simple&format=json#/
-    params = {
-        "q":query,
-        "format":"json",
-        "category_general":"",
-        "language":"auto",
-        "time_range":"",
-        # "safesearch":"2",
-        # "engines":"bing"
-        # "category_videos":""
-    }
-    #发送请求
-    response = requests.get(Searxng_url,params=params)
-    # print(response)
-    if response.status_code == 200:
-        res = response.json()
-        resList = []
-        for item in res["results"]:
-            resList.append({
-                "title":item["title"],
-                "content":item["content"],
-                "url":item["url"]
-            })
-        # print(res)
-        return resList[:3]
-    else:
-        return response.raise_for_status()
+# @tool
+# def searxng_search(query):
+#     """输入搜索内容，使用SearxNG进行搜索"""
+#     Searxng_url = "http://127.0.0.1:6688"
+#     # 配置搜索参数
+#     #q=刘亦菲&category_general=1&language=auto&time_range=&safesearch=0&theme=simple&format=json#/
+#     params = {
+#         "q":query,
+#         "format":"json",
+#         "category_general":"",
+#         "language":"auto",
+#         "time_range":"",
+#         # "safesearch":"2",
+#         # "engines":"bing"
+#         # "category_videos":""
+#     }
+#     #发送请求
+#     response = requests.get(Searxng_url,params=params)
+#     # print(response)
+#     if response.status_code == 200:
+#         res = response.json()
+#         resList = []
+#         for item in res["results"]:
+#             resList.append({
+#                 "title":item["title"],
+#                 "content":item["content"],
+#                 "url":item["url"]
+#             })
+#         # print(res)
+#         return resList[:3]
+#     else:
+#         return response.raise_for_status()
 
 
 
@@ -125,7 +132,7 @@ def get_weather(location):
 tools = [get_weather,searxng_search]
 
 # %%
-from langchain.tools.render import render_text_description
+from langchain_core.tools import render_text_description
 
 prompt = prompt.partial(
     tools = render_text_description(tools),

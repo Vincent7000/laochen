@@ -12,8 +12,14 @@
 # 
 
 # %%
-from langchain.agents import Tool
+from langchain_core.tools import Tool
 from langchain_experimental.utilities import PythonREPL
+
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+from utils import llm, searxng_search
+
 
 python_repl = PythonREPL()
 
@@ -23,14 +29,7 @@ python_repl.run("print(1+3)")
 # %%
 from langchain_openai import ChatOpenAI, OpenAI
 
-openai_api_key = "EMPTY"
-openai_api_base = "http://127.0.0.1:1234/v1"
-model = ChatOpenAI(
-    openai_api_key=openai_api_key,
-    openai_api_base=openai_api_base,
-    temperature=0.1,
-)
-llm = model
+
 
 # %%
 from langchain_core.output_parsers import StrOutputParser
@@ -47,7 +46,7 @@ chain = prompt | llm | output_parser
 
 # %%
 result = chain.invoke({"query":"3箱苹果重45千克。一箱梨比一箱苹果多5千克，3箱梨重多少千克？"})
-result
+print(f"chain1: \n{result.strip()}")
 
 # %%
 def parsePython(codeStr):
@@ -57,22 +56,22 @@ def parsePython(codeStr):
 
 # %%
 chain = prompt | llm | output_parser | parsePython
-chain
+# chain
 
 # %%
 result = chain.invoke({"query":"3箱苹果重45千克。一箱梨比一箱苹果多5千克，3箱梨重多少千克？"})
-result
+print(f"\nchain2: \n{result.strip()}")
 
 # %%
-python_repl.run(result)
+print(f"chain2 result: {python_repl.run(result)}")
 
 # %%
 chain = prompt | llm | output_parser | parsePython | python_repl.run
-chain
+# chain
 
 # %%
 result = chain.invoke({"query":"3箱苹果重45千克。一箱梨比一箱苹果多5千克，3箱梨重多少千克？"})
-result
+print(f'chain3 result: {result}')
 
 # %%
 

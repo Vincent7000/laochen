@@ -28,50 +28,12 @@
 # 在上图中，Check Relevance 就是一个条件边，它的上游节点是检索相关文档，条件函数是判断文档是否相关，如果相关，则进入下游节点【产生回答】；如果不相关，则进入下游节点【重写输入问题】。
 
 # %%
-from langchain_openai import ChatOpenAI, OpenAI
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+from utils import llm, searxng_search
 
-openai_api_key = "EMPTY"
-openai_api_base = "http://127.0.0.1:1234/v1"
-llm = ChatOpenAI(
-    openai_api_key=openai_api_key,
-    openai_api_base=openai_api_base,
-    temperature=0.3,
-)
-
-# %%
-import requests
-import json
-from langchain.agents import tool
-# SearXNG 的实例 URL，你可以使用官方实例或自托管实例
-@tool
-def searxng_search(query):
-    """输入搜索内容，使用 SearXNG 进行搜索。"""
-    SEARXNG_URL = 'http://127.0.0.1:6688/search'
-    params = {}
-    # 设置搜索参数
-    params['q'] = query
-    params['format'] = 'json'  # 返回 JSON 格式的结果
-    params['engines'] = 'bing'
-    # 发送 GET 请求
-    response = requests.get(SEARXNG_URL,params)
-    #return response.text
-    # 检查响应状态码
-    if response.status_code == 200:
-        res = response.json()
-        # print(res)
-        resList = []
-        for item in res['results']:
-            resList.append({
-                "title":item['title'],
-                "content":item['content'],
-                "url":item['url']
-            })
-            if len(resList) >= 3:
-                break
-        return resList 
-    else:
-        response.raise_for_status()
-        
+# 测试搜索工具
 searxng_search.invoke("郭德纲")
 
 # %%
@@ -79,7 +41,7 @@ promptTemplate = """尽可能的帮助用户回答任何问题。
 
 您可以使用以下工具来帮忙解决问题，如果已经知道了答案，也可以直接回答：
 
-searxng_search : searxng_search(query) -> 输入搜索内容，使用 SearXNG 进行搜索。
+searxng_search : searxng_search(query) -> 输入搜索内容，使用 LLM 返回对该主题的简单介绍。
 
 回复格式说明
 ----------------------------
@@ -128,12 +90,12 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 # %%
-from langchain.agents.agent import AgentOutputParser
+from langchain_core.output_parsers import BaseOutputParser
 from langchain_core.output_parsers.json import parse_json_markdown
 from langchain_core.exceptions import OutputParserException
 from langchain_core.agents import AgentAction, AgentFinish
 from langchain_core.output_parsers import StrOutputParser
-class JSONAgentOutputParser(AgentOutputParser):
+class JSONAgentOutputParser(BaseOutputParser):
 
     def parse(self, text):
         try:
@@ -207,9 +169,10 @@ graph.set_entry_point("chain")
 runnable1 = graph.compile()
 
 # %%
-from IPython.display import Image
-
-Image(runnable1.get_graph().draw_png())
+# 保存图为 PNG 文件
+with open("graph1.png", "wb") as f:
+    f.write(runnable1.get_graph().draw_png())
+print("图已保存为 graph1.png")
 
 # %%
 # promptValue = prompt.invoke({"input":"小米su7的发布时间"})
@@ -273,17 +236,14 @@ runnable2 = graph.compile()
 
 
 # %%
-from IPython.display import Image
-
-Image(runnable2.get_graph().draw_png())
-
-# %%
-
+# 保存图为 PNG 文件
+with open("graph2.png", "wb") as f:
+    f.write(runnable2.get_graph().draw_png())
+print("图已保存为 graph2.png")
 
 # %%
 runnable2.invoke(HumanMessage("小米su7的发布时间"))
 
 # %%
-
 
 

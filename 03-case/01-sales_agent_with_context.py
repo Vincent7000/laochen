@@ -17,14 +17,18 @@
 
 # %%
 from langchain_openai import ChatOpenAI, OpenAI
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+# from utils import llm
 
-openai_api_key = "EMPTY"
-openai_api_base = "http://127.0.0.1:1234/v1"
 
-openai_api_key = "sk-57f92b2e1534400f93a8623c56f3c0ba"
-openai_api_base = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-model_name="qwen-turbo"
-
+llm = ChatOpenAI(
+    model="doubao-seed-1-6-flash-250828",
+    temperature=0.3,
+    openai_api_key="eae9aeef-c953-466b-8cdd-5c98ee331ccd",
+    openai_api_base="https://ark.cn-beijing.volces.com/api/v3"
+)
 
 # llm = ChatOpenAI(
 #     openai_api_key=openai_api_key,
@@ -35,12 +39,7 @@ model_name="qwen-turbo"
 #         "presence_penalty":0.9
 #     }
 # )
-llm = ChatOpenAI(
-    openai_api_key=openai_api_key,
-    openai_api_base=openai_api_base,
-    model_name=model_name,
-    temperature=0.3,
-)
+
 
 # %% [markdown]
 # ## 导入库并设置您的环境

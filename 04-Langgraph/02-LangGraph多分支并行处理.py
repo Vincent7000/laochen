@@ -18,9 +18,13 @@
 
 # %%
 from langchain_openai import ChatOpenAI, OpenAI
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+from utils import llm
 
-openai_api_key = "EMPTY"
-openai_api_base = "http://127.0.0.1:8000/v1"
+# openai_api_key = "EMPTY"
+# openai_api_base = "http://127.0.0.1:8000/v1"
 # llm = ChatOpenAI(
 #     openai_api_key=openai_api_key,
 #     openai_api_base=openai_api_base,
@@ -30,12 +34,13 @@ openai_api_base = "http://127.0.0.1:8000/v1"
 #         "presence_penalty":0.9
 #     }
 # )
-llm = ChatOpenAI(
-    openai_api_key=openai_api_key,
-    openai_api_base=openai_api_base,
-    temperature=0.3,
-    model="/mnt/d/ai/download/Smaug-34B-v0.1-AWQ"
-)
+# llm = ChatOpenAI(
+#     openai_api_key=openai_api_key,
+#     openai_api_base=openai_api_base,
+#     temperature=0.3,
+#     model="/mnt/d/ai/download/Smaug-34B-v0.1-AWQ"
+# )
+
 
 # %%
 # from langchain_anthropic import ChatAnthropic
@@ -162,9 +167,8 @@ graph.invoke([HumanMessage(content="躺平是当代人的解药")])
 # %%
 for step in graph.stream([HumanMessage(content="躺平是当代人的解药")]):
     print(step)
-
-# %%
-print(step["__end__"])
+    if "__end__" in step:
+        print("最终结果:", step["__end__"])
 
 # %%
 

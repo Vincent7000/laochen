@@ -11,31 +11,34 @@
 # %pip install -U langgraph langchain_anthropic
 
 # %%
-import getpass
+import sys
 import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+from utils import llm
 
-os.environ["LANGCHAIN_API_KEY"] = getpass.getpass("LANGCHAIN_API_KEY")
-os.environ["ANTHROPIC_API_KEY"] = getpass.getpass("ANTHROPIC_API_KEY")
 
-# %%
-from langchain_openai import ChatOpenAI, OpenAI
+# os.environ["LANGCHAIN_API_KEY"] = getpass.getpass("LANGCHAIN_API_KEY")
+# os.environ["ANTHROPIC_API_KEY"] = getpass.getpass("ANTHROPIC_API_KEY")
 
-openai_api_key = "EMPTY"
-openai_api_base = "http://127.0.0.1:1234/v1"
+# # %%
+# from langchain_openai import ChatOpenAI, OpenAI
+
+# openai_api_key = "EMPTY"
+# openai_api_base = "http://127.0.0.1:1234/v1"
+# # llm = ChatOpenAI(
+# #     openai_api_key=openai_api_key,
+# #     openai_api_base=openai_api_base,
+# #     temperature=0.3,
+# #     model_kwargs = {
+# #         "frequency_penalty":0.9,
+# #         "presence_penalty":0.9
+# #     }
+# # )
 # llm = ChatOpenAI(
 #     openai_api_key=openai_api_key,
 #     openai_api_base=openai_api_base,
 #     temperature=0.3,
-#     model_kwargs = {
-#         "frequency_penalty":0.9,
-#         "presence_penalty":0.9
-#     }
 # )
-llm = ChatOpenAI(
-    openai_api_key=openai_api_key,
-    openai_api_base=openai_api_base,
-    temperature=0.3,
-)
 
 # %% [markdown]
 # ## Subgraph

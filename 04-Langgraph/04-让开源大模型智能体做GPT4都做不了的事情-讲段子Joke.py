@@ -4,27 +4,34 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 output_parser = StrOutputParser()
 
-# %%
-from langchain_openai import ChatOpenAI, OpenAI
 
-openai_api_key = "lm-studio"
-openai_api_base = "http://127.0.0.1:1234/v1"
+# %%
+
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+from utils import llm
+
+# from langchain_openai import ChatOpenAI, OpenAI
+
+# openai_api_key = "lm-studio"
+# openai_api_base = "http://127.0.0.1:1234/v1"
+# # llm = ChatOpenAI(
+# #     openai_api_key=openai_api_key,
+# #     openai_api_base=openai_api_base,
+# #     temperature=0.3,
+# #     model_kwargs = {
+# #         "frequency_penalty":0.9,
+# #         "presence_penalty":0.9
+# #     }
+# # )
 # llm = ChatOpenAI(
 #     openai_api_key=openai_api_key,
 #     openai_api_base=openai_api_base,
 #     temperature=0.3,
-#     model_kwargs = {
-#         "frequency_penalty":0.9,
-#         "presence_penalty":0.9
-#     }
+#     # model="dranger003/UNA-SimpleSmaug-34b-v1beta-iMat.GGUF/ggml-una-simplesmaug-34b-v1beta-q4_k.gguf"
+#     # model="/mnt/d/ai/download/Smaug-34B-v0.1-AWQ"
 # )
-llm = ChatOpenAI(
-    openai_api_key=openai_api_key,
-    openai_api_base=openai_api_base,
-    temperature=0.3,
-    # model="dranger003/UNA-SimpleSmaug-34b-v1beta-iMat.GGUF/ggml-una-simplesmaug-34b-v1beta-q4_k.gguf"
-    # model="/mnt/d/ai/download/Smaug-34B-v0.1-AWQ"
-)
 
 # %%
 assistant_prompt = ChatPromptTemplate.from_messages(

@@ -8,13 +8,15 @@
 # 执行通常由单独的代理（配备工具）完成。
 
 # %%
-from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
-from langchain_community.tools import DuckDuckGoSearchResults
+# 使用 utils 中的 searxng_search 替代 DuckDuckGo（国内网络无法访问 DuckDuckGo）
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+from utils import searxng_search as search
 
-wrapper = DuckDuckGoSearchAPIWrapper(region="zh-cn", max_results=2,source="news")
-
-search = DuckDuckGoSearchResults(api_wrapper=wrapper, )
-search.run("刘亦菲")
+# 测试搜索功能
+# result = search.invoke("刘亦菲")
+# print(result)
 
 # %% [markdown]
 # ## 加载LLM
@@ -24,14 +26,10 @@ search.run("刘亦菲")
 # %%
 from langchain_openai import ChatOpenAI, OpenAI
 
-openai_api_key = "EMPTY"
-openai_api_base = "http://127.0.0.1:1234/v1"
-model = ChatOpenAI(
-    openai_api_key=openai_api_key,
-    openai_api_base=openai_api_base,
-    temperature=0.3,
-)
-llm = model
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+from utils import llm, render_text_description
 
 # %% [markdown]
 # ## 定义工具
@@ -41,7 +39,8 @@ llm = model
 # 请注意，这里我们使用的函数文档字符串非常重要。在此处阅读有关为什么会这样的更多信息
 
 # %%
-from langchain.agents import tool
+# from langchain.agents import tool
+from langchain_core.tools import tool
 
 
 @tool
@@ -73,7 +72,7 @@ def get_weather(location):
     else:
         raise Exception(f"失败接收天气信息：{response.status_code}")
             
-get_weather.invoke("广州")
+print(f"广州天气: {get_weather.invoke('广州')}")
 
 # %%
 @tool
@@ -144,12 +143,14 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 # %%
-from langchain.tools.render import  render_text_description
+# 新版 LangChain 1.x 中 render_text_description 已移除，手动实现
+
 
 prompt = prompt.partial(
         tools=render_text_description(list(tools)),
         tool_names=", ".join([t.name for t in tools]),
 )
+
 prompt
 
 # %%
@@ -172,11 +173,7 @@ render_text_description(list(tools))
 # 将这些部分放在一起，我们现在可以创建代理。我们将导入最后两个实用程序函数：一个用于格式化中间步骤（代理操作、工具输出对）以输入可发送到模型的消息的组件，以及一个用于将输出消息转换为代理操作/代理完成的组件。
 
 # %%
-from langchain.agents.json_chat.prompt import TEMPLATE_TOOL_RESPONSE
-
-TEMPLATE_TOOL_RESPONSE
-
-# %%
+# 本地定义 TEMPLATE_TOOL_RESPONSE（新版 LangChain 已移除该导入）
 TEMPLATE_TOOL_RESPONSE = """工具响应：
 ---------------------
 {observation}
@@ -207,7 +204,7 @@ def format_log_to_messages(
     return thoughts
 
 # %%
-from langchain.agents.agent import AgentOutputParser
+from langchain_core.output_parsers import BaseOutputParser as AgentOutputParser
 from langchain_core.output_parsers.json import parse_json_markdown
 from langchain_core.exceptions import OutputParserException
 from langchain_core.agents import AgentAction, AgentFinish
@@ -277,12 +274,17 @@ agent = (
     )
 
 # %%
-from langchain.agents import AgentExecutor
-
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-
-# %%
-agent_executor.invoke({"input": "英国现任首相是谁？"})
+# 新版 LangChain 1.x 中 AgentExecutor 已移除，使用 langchain.agents 的 create_agent
+try:
+    from langchain.agents import create_agent
+    agent_executor = create_agent(
+        model=llm,
+        tools=tools,
+    )
+    # 注释掉旧版调用方式
+    # agent_executor.invoke({"input": "英国现任首相是谁？"})
+except ImportError:
+    print("create_agent 不可用，跳过 AgentExecutor 测试")
 
 # %% [markdown]
 # ## 任务计划与监督者
@@ -312,10 +314,10 @@ def planParse(message):
     return steps
 
 # %%
-planChain = planPrompt | model | planParse
+planChain = planPrompt | llm | planParse
 
 # %%
-planChain.invoke({"input":"写一篇关于历代美国总统的年龄跟发布政策偏好关系"})
+print(f"{planChain.invoke({'input':'写一篇关于历代美国总统的年龄跟发布政策偏好关系'})}")
 
 # %%
 splitTaskPrompt = ChatPromptTemplate.from_messages(
@@ -346,11 +348,13 @@ splitTaskPrompt = splitTaskPrompt.partial(
 splitTaskPrompt
 
 # %%
-splitTaskChain = splitTaskPrompt | model | planParse
-splitTaskChain.invoke({"input":"收集历任美国总统的个人信息和政治生涯信息（出生日期、就职日期、主要政策等）。"})
+splitTaskChain = splitTaskPrompt | llm | planParse
+print(f"{splitTaskChain.invoke({'input':'收集历任美国总统的个人信息和政治生涯信息（出生日期、就职日期、主要政策等）。'})}")
+# print(splitTaskChain.invoke({"input":"收集历任美国总统的个人信息和政治生涯信息（出生日期、就职日期、主要政策等）。"}))
 
 # %%
-splitTaskChain.invoke({"input":"搜索每个总统的名字，并查看他们的维基百科页面。"})
+print(f"{splitTaskChain.invoke({'input':'搜索每个总统的名字，并查看他们的维基百科页面。'})}")
+# splitTaskChain.invoke({"input":"搜索每个总统的名字，并查看他们的维基百科页面。"})
 
 # %%
 
